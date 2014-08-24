@@ -1,22 +1,26 @@
 var container, camera, controls, scene, mesh, renderer;
 
+// Initialize and render components.
 init();
 render();
 
+// Add event to button to choose STL model.
+// Load the model and add it to the scene.
 var button = document.getElementById("button");
 button.addEventListener("change", function(event){
+  // Remove previous mesh.
   scene.remove(mesh);
+
   var file = event.target.files[0];
   var reader = new FileReader();
   reader.onload=function(event){
     var data = event.target.result;
     var blob = new Blob([data], {'type' : file.type}); 
     var url = window.URL.createObjectURL(blob);      
-    console.log(url);
     var loader = new THREE.STLLoader();
     loader.addEventListener('load', function(res) {
       var geometry = res.content;
-      var material = new THREE.MeshLambertMaterial( { ambient: 0xff5533, color: 0xff5533} );
+      var material = new THREE.MeshLambertMaterial( { ambient: 0xCECECE, color: 0xCECECE} );
       mesh = new THREE.Mesh( geometry, material );
       mesh.position.set( 0, 0, 0 );
       scene.add( mesh );
@@ -40,41 +44,17 @@ function init(){
 
   scene = new THREE.Scene();
 
-  scene.add( new THREE.AmbientLight( 0x777777 ) );
-  addShadowedLight( 1, 1, 1, 0xffffff, 1.0 );
-  addShadowedLight( -1, 1, -1, 0xffffff, 0.8 );
+  scene.add(new THREE.AmbientLight(0x999999));
+  var light = new THREE.DirectionalLight(0xffffff);
+  light.position.set(1, 1, 1);
+  scene.add(light);
 
   renderer = new THREE.WebGLRenderer( { antialias: true } );
   renderer.setSize( window.innerWidth, window.innerHeight );
   renderer.setClearColor( 0xffffff, 1 );
   renderer.gammaInput = true;
   renderer.gammaOutput = true;
-  renderer.shadowMapEnabled = true;
-  renderer.shadowMapCullFace = THREE.CullFaceBack;
   container.appendChild( renderer.domElement );
-}
-
-function addShadowedLight( x, y, z, color, intensity ) {
-  var directionalLight = new THREE.DirectionalLight( color, intensity );
-  directionalLight.position.set( x, y, z );
-  scene.add( directionalLight );
-
-  directionalLight.castShadow = true;
-
-  var d = 1;
-  directionalLight.shadowCameraLeft = -d;
-  directionalLight.shadowCameraRight = d;
-  directionalLight.shadowCameraTop = d;
-  directionalLight.shadowCameraBottom = -d;
-
-  directionalLight.shadowCameraNear = 1;
-  directionalLight.shadowCameraFar = 4;
-
-  directionalLight.shadowMapWidth = 1024;
-  directionalLight.shadowMapHeight = 1024;
-
-  directionalLight.shadowBias = -0.005;
-  directionalLight.shadowDarkness = 0.15;
 }
 
 function render(){
